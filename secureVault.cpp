@@ -2,15 +2,17 @@
 
 using namespace std;
 
-// ---- PasswordEntry ----
-struct PasswordEntry {
+
+
+class PasswordEntry {
+    public:
     string website;
     string username;
     string passwordHash;
     string originalPassword;
 };
 
-// ---- Vault ----
+
 class Vault {
     vector<PasswordEntry> entries;
 public:
@@ -22,9 +24,10 @@ public:
             return;
         }
         for (auto &e : entries) {
-            cout << "Website: " << e.website << ", Username: " << e.username;
+            cout << "Website: " << e.website<<endl << "Username: " << e.username<<endl;
             if(showPasswords) {
-                cout << ", Password: " << e.originalPassword;
+                cout << "Password: " << e.originalPassword<<endl;
+                cout<<"=================="<<endl;
             }
             cout << endl;
         }
@@ -50,31 +53,37 @@ public:
     }
 };
 
-// ---- Authenticator ----
+
+
+
+
 class Authenticator {
-    size_t masterHash;
+    size_t hashed;
 public:
-    void setMasterPassword(const string& password){
+    void setmasterpass(const string& password){
         hash<string> hasher;
-        masterHash = hasher(password);
+        hashed = hasher(password);
     }
 
-    bool verifyMaster(const string& password){
+    bool verifymasterpass(const string& password){
         hash<string> hasher;
-        return masterHash == hasher(password);
+        return hashed == hasher(password);
     }
 };
 
-// ---- Simple terminal input for password ----
-string inputPassword(){
+
+
+
+string inputpass(){
     string password;
-    cout << "(Input hidden not supported, type normally) ";
+    cout << "Type Password ";
     getline(cin, password);
     return password;
 }
 
-// ---- Simple password generator ----
-string generatePassword(int length=8){
+
+
+string genpass(int length=8){
     string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
     string pass;
     for(int i=0;i<length;i++){
@@ -84,69 +93,79 @@ string generatePassword(int length=8){
 }
 
 int main(){
-    srand(time(0));
+    cout<<"WELCOME TO SECUREVAULT :)"<<endl;
 
     Authenticator auth;
     Vault vault;
 
-    // ---- Master password setup ----
-    cout<<"Set master password: ";
-    string master = inputPassword();
-    auth.setMasterPassword(master);
-    cout<<"Master password set!\n";
+    cout<<"Please set master password: "<<endl;
+    string master = inputpass();
+    auth.setmasterpass(master);
+    cout<<"Master password set!"<<endl;
 
     // ---- Login ----
     string input;
     while(true){
         cout<<"Enter master password to access vault: ";
-        input = inputPassword();
-        if(auth.verifyMaster(input)){
-            cout<<"Access granted!\n";
+        input = inputpass();
+        if(auth.verifymasterpass(input)){
+            cout<<"Great! Access granted :)"<<endl;
             break;
         } else {
-            cout<<"Incorrect password. Try again.\n";
+            cout<<"Oops! Incorrect password.Please Try again."<<endl;
         }
     }
 
-    // ---- Terminal menu ----
+
     int choice;
     do{
-        cout<<"\n1. Add password\n2. List entries\n3. Delete entry\n4. Generate strong password\n5. Exit\nChoice: ";
+        cout << endl;
+cout << "1. Add password" << endl;
+cout << "2. List entries" << endl;
+cout << "3. Delete entry" << endl;
+cout << "4. Generate strong password" << endl;
+cout << "5. Exit" << endl;
+cout << "Choice: ";
+
         cin >> choice;
-        cin.ignore(); // clear newline
+        cin.ignore(); 
         
         if(choice==1){
             PasswordEntry entry;
             cout<<"Website: "; getline(cin, entry.website);
             cout<<"Username: "; getline(cin, entry.username);
-            cout<<"Password: "; 
-            string password = inputPassword();
+            cout<<"Password: "<<endl; 
+            string password = inputpass();
             entry.originalPassword = password;
             entry.passwordHash = to_string(hash<string>{}(password));
             vault.addEntry(entry);
-            cout<<"Password added!\n";
+            cout<<"Password added!"<<endl;
         } 
         else if(choice==2){
-            // Verify master password again before showing passwords
-            cout<<"Enter master password to view entries: ";
-            string masterCheck = inputPassword();
-            if(auth.verifyMaster(masterCheck)){
-                cout<<"Access granted! Showing entries with passwords:\n";
-                vault.listEntries(true); // Show passwords
+           
+            cout<<"Enter master password to view entries: "<<endl;
+            string masterCheck = inputpass();
+            if(auth.verifymasterpass(masterCheck)){
+                cout<<"Access granted! Showing entries with passwords:"<<endl;
+                vault.listEntries(true); 
             } else {
-                cout<<"Incorrect master password. Access denied.\n";
+                cout<<"Incorrect master password. Access denied."<<endl;
             }
         }
         else if(choice==3){
             string site;
-            cout<<"Enter website to delete: "; getline(cin, site);
+            cout<<"Enter website to delete: ";
+             getline(cin, site);
             vault.deleteEntry(site);
         } 
         else if(choice==4){
-            cout<<"Generated password: "<<generatePassword(12)<<"\n";
+            cout<<"enter the length you want"<<endl;
+            int n;
+            cin>>n;
+            cout<<"Generated password: "<<genpass(n)<<endl;
         }
     }while(choice!=5);
 
-    cout<<"Exiting vault...\n";
+    cout<<"Thanks for using Secure Vault" <<endl<<"Exiting vault..."<<endl;
     return 0;
 }
